@@ -63,10 +63,10 @@ PG_PWD=postgres
 PG_MASTER=$IP4
 PG_STANDBY=$IP5
 SKIP_SMTP=n
-SMTPHOST="smtp.email.ap-sydney-1.oci.oraclecloud.com"
+SMTPHOST="XXXXX"
 SMTPUSER="ocid1.user.oc1..aaaaaaaaawwn4jifiejeeqjvgtz63va3tqkubf2ada2okhnbojdmig4rzdga@ocid1.tenancy.oc1..aaaaaaaansmpcdmysic6h5l3zencs5kyirgy47lpmh2jz5rtggd3euy2kbza.9d.com"
 # omit for no username
-SMTPPASSWORD=">v-B($4&ojCvJM7r0&KY"
+SMTPPASSWORD="xxxxxx"
 # omit for no password
 SMTPSSL=y
 SMTPPORT=587
