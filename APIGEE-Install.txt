@@ -1,0 +1,192 @@
+Installation Component	RAM	CPU	Minimum hard disk
+Cassandra (standalone)	16GB	8-core	250GB local storage with SSD supporting 2000 IOPS
+Cassandra/Zookeeper on same machine	16GB	8-core	250GB local storage with SSD supporting 2000 IOPS
+Message Processor/Router on same machine	16GB	8-core	100GB
+Message Processor (standalone)	16GB	8-core	100GB
+Router (standalone)	8GB	8-core	100GB
+Analytics - Postgres/Qpid on same server	16GB*	8‑core*	500GB - 1TB** network storage***, preferably with SSD backend, supporting 1000 IOPS or higher*
+Analytics - Postgres master or standby standalone	16GB*	8-core*	500GB - 1TB** network storage***, preferably with SSD backend, supporting 1000 IOPS or higher*
+Analytics - Qpid (standalone)	8GB	4-core	30GB - 50GB local storage with SSD
+The default Qpid queue size is 1 GB, which can be increased to 2 GB. If you need more capacity, add additional Qpid nodes.
+
+OpenLDAP/UI/Management Server	8GB	4-core	60GB
+UI/Management Server	4GB	2-core	60GB
+OpenLDAP (standalone)	4GB	2-core	60GB
+
+
+Enable EPEL repo:
+
+wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+sudo rpm -ivh epel-release-latest-8.noarch.rpm
+
+wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+sudo rpm -ivh epel-release-latest-9.noarch.rpm
+
+Java:
+=====
+You need a supported version of Java 1.8 installed on each machine prior to the installation
+
+
+SELinux
+Depending on your settings for SELinux, Edge can encounter issues with installing and starting Edge components. If necessary, you can disable SELinux or set it to permissive mode during installation, and then re-enable it after installation.
+
+Creating the 'apigee' user
+The installation procedure creates a Unix system user named 'apigee'. Edge directories and files are owned by 'apigee', as are Edge processes. That means Edge components run as the 'apigee' user. If necessary, you can run components as a different user.
+
+
+Installation directory:
+=======================
+By default, the installer writes all files to the /opt/apigee directory. You cannot change this directory location. While you cannot change this directory, you can create a symlink to map /opt/apigee to another location, as described in Creating a symlink from /opt/apigee.
+
+In the instructions in this guide, the installation directory is noted as /opt/apigee
+
+
+Create the "apigee" user and group:
+groupadd -r apigee > useradd -r -g apigee -d /opt/apigee -s /sbin/nologin -c "Apigee platform user" apigee
+
+Create a symlink from /opt/apigee to your desired install root:
+ln -Ts /srv/myInstallDir /opt/apigee
+
+Change ownership of the install root and symlink to the "apigee" user:
+chown -h apigee:apigee /srv/myInstallDir /opt/apigee
+
+
+Network setting
+Apigee recommendeds that you check the network setting prior to the installation. The installer expects that all machines have fixed IP addresses. Use the following commands to validate the setting:
+
+hostname returns the name of the machine
+hostname -i returns the IP address for the hostname that can be addressed from other machines.
+
+
+TCP Wrappers
+TCP Wrappers can block communication of some ports and can affect OpenLDAP, Postgres, and Cassandra installation. On those nodes, check /etc/hosts.allow and /etc/hosts.deny to ensure that there are no port restrictions on the required OpenLDAP, Postgres, and Cassandra ports.
+
+iptables
+Validate that there are no iptables policies preventing connectivity between nodes on the required Edge ports.
+sudo/etc/init.d/iptables stop
+
+
+After installing the Edge for Private Cloud, you can check that Cassandra is configured correctly by examining the /opt/apigee/apigee-cassandra/conf/cassandra.yaml file. For example, ensure that the Edge for Private Cloud installation script set the following properties:
+
+cluster_name
+initial_token
+partitioner
+seeds
+listen_address
+rpc_address
+snitch
+
+
+System limits:
+=================
+Ensure that you have set the following system limits on Cassandra and Message Processor nodes:
+
+On Cassandra nodes, set soft and hard memlock, nofile, and address space (as) limits for installation user (default is "apigee") in /etc/security/limits.d/90-apigee-edge-limits.conf as shown below:
+
+apigee soft memlock unlimited
+apigee hard memlock unlimited
+apigee soft nofile 32768
+apigee hard nofile 65536
+apigee soft as unlimited
+apigee hard as unlimited
+apigee soft nproc 32768
+apigee hard nproc 65536
+
+On Message Processor nodes, set the maximum number of open file descriptors to 64K in /etc/security/limits.d/90-apigee-edge-limits.conf as shown below:
+
+apigee soft nofile 32768
+apigee hard nofile 65536
+
+# su - apigee
+$ ulimit -n
+100000
+
+
+Licensing
+Each installation of Edge requires a unique license file that you obtain from Apigee. You will need to provide the path to the license file when installing the management server, for example /tmp/license.txt.
+
+The installer copies the license file to /opt/apigee/customer/conf/license.txt
+
+
+Starting, stopping, restarting, and checking the status of Apigee Edge
+
+Stop order
+If you install Edge on multiple nodes, then you should stop Edge components on those nodes in the following stop order:
+
+Management Server (edge-management-server)
+Message Processor (edge-message-processor)
+Postgres Server (edge-postgres-server)
+Qpid Server (edge-qpid-server)
+Router (edge-router)
+Edge UI: edge-ui (classic) or edge-management-ui(new)
+Cassandra (apigee-cassandra)
+OpenLDAP (apigee-openldap)
+PostgreSQL database (apigee-postgresql)
+Qpidd (apigee-qpidd)
+ZooKeeper (apigee-zookeeper)
+Apigee SSO (apigee-sso)
+Start order
+If you install Edge on multiple nodes, then you should start Edge components on those nodes in the following start order:
+
+Cassandra (apigee-cassandra)
+OpenLDAP (apigee-openldap)
+PostgreSQL database (apigee-postgresql)
+Qpidd (apigee-qpidd)
+ZooKeeper (apigee-zookeeper)
+Management Server (edge-management-server)
+Message Processor (edge-message-processor)
+Postgres Server (edge-postgres-server)
+Qpid Server (edge-qpid-server)
+Router (edge-router)
+Edge UI: edge-ui (classic) or edge-management-ui(new)
+Edge SSO (apigee-sso)
+Start/stop/check all components
+The following scripts detect the Apigee components configured to run on the system on which the script is executed, and will start or stop only those components in the correct order for that node.
+
+To stop all Apigee components:
+
+/opt/apigee/apigee-service/bin/apigee-all stop
+To start all Apigee components:
+
+/opt/apigee/apigee-service/bin/apigee-all start
+To restart all Apigee components:
+
+/opt/apigee/apigee-service/bin/apigee-all restart
+To check which components are running:
+
+/opt/apigee/apigee-service/bin/apigee-all status
+Start/stop/restart individual components
+You can use the apigee-service tool to start/stop/restart or check the status of an individual Apigee component on any specific server.
+
+
+/opt/apigee/apigee-service/bin/apigee-service component_name [start|stop|restart|status]
+
+Where component_name identifies the component. Possible values of component_name include (in alphabetical order):
+
+apigee-cassandra (Cassandra)
+apigee-openldap (OpenLDAP)
+apigee-postgresql (PostgreSQL database)
+apigee-qpidd (Qpidd)
+apigee-sso (Edge SSO)
+apigee-zookeeper (ZooKeeper)
+edge-management-server (Management Server)
+edge-management-ui (new Edge UI)
+edge-message-processor (Message Processor)
+edge-postgres-server (Postgres Server)
+edge-qpid-server (Qpid Server)
+edge-router (Edge Router)
+edge-ui (Classic UI)
+
+For example, to start, stop, or restart the Management Server, run the following commands:
+/opt/apigee/apigee-service/bin/apigee-service edge-management-server start
+/opt/apigee/apigee-service/bin/apigee-service edge-management-server stop
+/opt/apigee/apigee-service/bin/apigee-service edge-management-server restart
+
+You can also check the status of an individual Apigee component by using the following command:
+/opt/apigee/apigee-service/bin/apigee-service component_name status
+
+For example:
+/opt/apigee/apigee-service/bin/apigee-service edge-management-server status
+
+
+	

@@ -1,0 +1,130 @@
+Login into Jump server
+Verify that Ansible software is already istalled
+
+ansible --version
+
+DownLoad the Ansible Pre-Requisite repository in Jump server
+
+git clone -b AU-NON-PROD https://github.com/saibalghosh1980/ANSIBLE-L-PRE-REQUISITE
+
+
+ansible-galaxy collection install ansible.posix
+1. ansible-playbook -i inventory install-prerequisites.yml --check
+2. ansible-playbook -i inventory install-prerequisites.yml
+Open the necessary ports using NetCat utility
+3. ansible-playbook -i inventory install-apigee.yml --check
+4. ansible-playbook -i inventory install-apigee.yml
+5. ansible-playbook -i inventory check-firewall.yml --check
+
+
+
+ansible-playbook -i inventory install-prerequisites.yml --check :  OutPut
+TASK [openjdk8 : Check if OpenJDK 8 is already installed] 
+TASK [openjdk8 : Check if JAVA_HOME is already set in profile files] 
+TASK [openjdk8 : Install OpenJDK 8 and dependencies]
+TASK [openjdk8 : Get OpenJDK installation path] 
+TASK [openjdk8 : Create JAVA_HOME environment variable file]
+TASK [openjdk8 : Ensure JAVA_HOME is correctly defined]
+TASK [openjdk8 : Ensure PATH includes JAVA_HOME/bin]
+TASK [pre-req-linux : Include SELinux configuration tasks] 
+TASK [pre-req-linux : Check SELinux status]
+TASK [pre-req-linux : Disable SELinux permanently] 
+TASK [pre-req-linux : Notify about required reboot for SELinux changes] 
+TASK [pre-req-linux : Include YUM configuration tasks]
+TASK [pre-req-linux : Check if clean_requirements_on_remove exists in yum.conf] 
+TASK [pre-req-linux : Add clean_requirements_on_remove=False to yum.conf if not present] 
+TASK [pre-req-linux : Set clean_requirements_on_remove=False in yum.conf if it exists]
+TASK [pre-req-linux : Include EPEL repository tasks] 
+TASK [pre-req-linux : Download EPEL release RPM] 
+TASK [pre-req-linux : Install EPEL release RPM] 
+TASK [pre-req-linux : Clean up EPEL release RPM file] 
+TASK [pre-req-linux : Include Apigee group and user tasks] 
+TASK [pre-req-linux : Check if apigee group exists] 
+TASK [pre-req-linux : Create apigee group] 
+TASK [pre-req-linux : Check if apigee user exists] 
+TASK [pre-req-linux : Create apigee user] 
+TASK [pre-req-linux : Ensure /opt/apigee directory exists]
+TASK [pre-req-linux : Include limits configuration tasks]
+TASK [pre-req-linux : Get hostname]
+TASK [pre-req-linux : Set cassandra_node fact]
+TASK [pre-req-linux : Ensure limits.d directory exists]
+TASK [pre-req-linux : Set resource limits for Apigee user on Cassandra nodes]
+TASK [pre-req-linux : Verify limits file]
+TASK [pre-req-linux : Set message_processor_node fact]
+TASK [pre-req-linux : Set file descriptor limits for Apigee user on Message Processor nodes]
+TASK [pre-req-linux : Verify limits file for Message Processor nodes]
+TASK [pre-req-linux : Include NSS configuration tasks]
+TASK [pre-req-linux : Check current NSS version]
+TASK [pre-req-linux : Parse NSS version]
+TASK [pre-req-linux : Display current NSS version]
+TASK [pre-req-linux : Check if NSS needs updating]
+TASK [pre-req-linux : Update NSS to v3.19 or later]
+TASK [pre-req-linux : Verify updated NSS version]
+TASK [pre-req-linux : Display updated NSS version]
+TASK [pre-req-linux : Check if NSCD is installed]
+TASK [pre-req-linux : Check if NSCD service is running]
+TASK [pre-req-linux : Configure NSCD on Message Processor nodes]
+TASK [pre-req-linux : Restart NSCD service]
+TASK [pre-req-linux : Display NSCD configuration notification]
+TASK [pre-req-linux : Include Install software tasks] 
+TASK [pre-req-linux : Check if netcat is installed]
+TASK [pre-req-linux : Install netcat] 
+TASK [pre-req-linux : Install nmap-ncat if standard netcat is not available]
+TASK [pre-req-linux : Create list of required packages] 
+TASK [pre-req-linux : Check which packages are available in repositories]
+TASK [pre-req-linux : Filter out unavailable packages]
+TASK [pre-req-linux : Check which packages are installed] 
+TASK [pre-req-linux : Create list of packages to install] 
+TASK [pre-req-linux : Display packages to be installed] 
+TASK [pre-req-linux : Install missing packages]
+TASK [pre-req-linux : Display installation result]
+TASK [pre-req-linux : Verify essential commands are available]
+TASK [pre-req-linux : Display missing commands] 
+TASK [pre-req-linux : Include Miscellaneous tasks]
+TASK [pre-req-linux : Remove openldap-compat package]
+TASK [pre-req-linux : Display openldap-compat removal result]
+TASK [pre-req-linux : Check if PostgreSQL module is enabled]
+TASK [pre-req-linux : Check if Nginx module is enabled]
+TASK [pre-req-linux : Disable PostgreSQL module if enabled]
+TASK [pre-req-linux : Disable Nginx module if enabled]
+TASK [pre-req-linux : Display PostgreSQL module disable result]
+TASK [pre-req-linux : Display Nginx module disable result]
+TASK [pre-req-linux : Include apigee bootstrap tasks]
+TASK [pre-req-linux : Check if Edge bootstrap file already exists] 
+TASK [pre-req-linux : Download Edge bootstrap file]
+TASK [pre-req-linux : Display bootstrap download result]
+TASK [pre-req-linux : Include SMTP connectivity check tasks]
+TASK [pre-req-linux : Get hostname for logging purposes]
+TASK [pre-req-linux : Set SMTP connection details from variables]
+TASK [pre-req-linux : Log SMTP connectivity test start]
+TASK [pre-req-linux : Check basic TCP connectivity to SMTP server]
+TASK [pre-req-linux : Display basic connectivity results] 
+TASK [pre-req-linux : Display final SMTP connectivity status]
+TASK [pre-req-linux-firewall : Ensure firewalld is installed]
+TASK [pre-req-linux-firewall : Ensure firewalld is running and enabled]
+TASK [pre-req-linux-firewall : Allow SSH access for all nodes]
+TASK [pre-req-linux-firewall : Allow outbound HTTP/HTTPS access]
+TASK [pre-req-linux-firewall : Get hostname]
+TASK [pre-req-linux-firewall : Configure firewall for Management Server (Node 1)] 
+TASK [pre-req-linux-firewall : Configure firewall for Router (Node 2 & 3)]
+TASK [pre-req-linux-firewall : Configure firewall for Qpid/Postgres Servers (Node 4 & 5)] 
+TASK [pre-req-linux-firewall : Reload firewalld]
+
+
+REBOOT Nodes:
+=============
+ansible nodes-non-prod-au -i inventory -m reboot -b
+
+Run NetCat to open firewall:
+============================
+nc -lkv <port-number> &
+go to /opt/scripts
+
+[root@vmlgapi01nodetest scripts]# ls -lrt
+total 8
+-rwxr-xr-x. 1 root root  764 Jun  4 16:51 node1-listen.sh
+-rwxr-xr-x. 1 root root 1471 Jun  4 16:51 t1.sh
+
+
+
+
