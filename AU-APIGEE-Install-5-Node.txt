@@ -115,18 +115,17 @@ Each step of the validation testing process returns an HTTP 20X response code fo
 
 To run the test scripts:
 Install apigee-validate on a Management Server (Node1):
-
-/opt/apigee/apigee-service/bin/apigee-service apigee-validate install
+1. /opt/apigee/apigee-service/bin/apigee-service apigee-validate install
 
 Run the setup command on a Management Server node to invoke the test scripts:
-/opt/apigee/apigee-service/bin/apigee-service apigee-validate setup -f /tmp/apigee.config
+2. /opt/apigee/apigee-service/bin/apigee-service apigee-validate setup -f /tmp/apigee.config
 
 The configFile file must contain the following property:
 APIGEE_ADMINPW=SYS_ADMIN_PASSWORD
 VHOST_PORT=9000
 
 To remove the organization, environment and other artifacts created by the test scripts:
-/opt/apigee/apigee-service/bin/apigee-service apigee-validate clean -f /tmp/apigee.config
+3. /opt/apigee/apigee-service/bin/apigee-service apigee-validate clean -f /tmp/apigee.config
 
 
 Verify POD installation status in management server:
@@ -137,69 +136,6 @@ curl -u user:password http://localhost:8080/v1/servers?pod=analytics
 curl -u admin.apigee@lycatech.com:password http://localhost:8080/v1/servers?pod=central
 
 
-Create an onboarding configuration file:
-=====================================================================================================
-This section includes a sample configuration file for onboarding an organization with setup-org.
-
-Copy the following example and edit as necessary for your organization:
-
-
-IP1=192.168.1.1
-
-# Specify the IP or DNS name of the Management Server.
-MSIP="$IP1"
-
-# Specify the Edge sys admin credentials.
-ADMIN_EMAIL="admin@email.com"
-APIGEE_ADMINPW=admin_password  # If omitted, you are prompted for it.
-
-# Specify organization name.
-ORG_NAME=myorg  # lowercase only, no spaces, underscores, or periods.
-
-# Specify the organization administrator user.
-# Either specify an existing user, or specify the information
-# necessary to create a new user.
-# Do not use the sys admin as the organization administrator.
-#
-# Create a new user for the organization administrator.
-NEW_USER="y"
-# New user information if NEW_USER="y".
-USER_NAME=new@user.com
-FIRST_NAME=new
-LAST_NAME=user
-# Org admin password must be at least 8 characters long and contain one uppercase
-# letter, one lowercase letter, and one digit or special character
-USER_PWD="newUserPword"
-ORG_ADMIN=new@user.com
-#
-# Or, specify an existing user as the organization admin,
-# omit USER_NAME, FIRST_NAME, LAST_NAME, USER_PWD.
-# NEW_USER="n"
-# ORG_ADMIN=existing@user.com
-
-# Specify environment name.
-ENV_NAME=prod  # lowercase only
-
-# Specify virtual host information.
-VHOST_PORT=9001
-VHOST_NAME=default
-
-# If you have a DNS entry for the virtual host.
-VHOST_ALIAS=myorg-test.apigee.net
-
-# If you do not have a DNS entry for the virtual host,
-# specify the IP and port of each router as a space-separated list:
-# VHOST_ALIAS="firstRouterIP:9001 secondRouterIP:9001"
-
-# Optionally configure TLS/SSL for virtual host.
-# VHOST_SSL=y     # Set to "y" to enable TLS/SSL on the virtual host.
-# KEYSTORE_JAR=   # JAR file containing the cert and private key.
-# KEYSTORE_NAME=  # Name of the keystore.
-# KEYSTORE_ALIAS= # The key alias.
-# KEY_PASSWORD=   # The key password, if it has one.
-
-# Specify the analytics group.
-# AXGROUP=axgroup-001 # Default name is axgroup-001.
 
 
 
@@ -304,6 +240,7 @@ To enable all components on the node:
 
 /opt/apigee/apigee-service/bin/apigee-all enable_autostart
 
+In later stage if required to disable the auto restart then use below command. 
 To disable all components on the node:
 /opt/apigee/apigee-service/bin/apigee-all disable_autostart
 
@@ -437,3 +374,75 @@ Reload apigee-monit with the following command:
 If you cannot restart apigee-monit, check the log file for errors as described in Access apigee-monit log files.
 
 Repeat this procedure for each node in your cluster.
+
+
+#######################################################################################
+After MONIT setup is completed start organization onboard (on Node1 Management server).
+#######################################################################################
+
+Create an onboarding configuration file org.config:
+=====================================================================================================
+This section includes a sample configuration file for onboarding an organization with setup-org. Copy the file to Management server at /tmp/org.config
+
+Copy the following example and edit as necessary for your organization:
+
+
+IP1=192.168.1.1
+
+# Specify the IP or DNS name of the Management Server.
+MSIP="$IP1"
+
+# Specify the Edge sys admin credentials.
+ADMIN_EMAIL="admin@email.com"
+APIGEE_ADMINPW=admin_password  # If omitted, you are prompted for it.
+
+# Specify organization name.
+ORG_NAME=myorg  # lowercase only, no spaces, underscores, or periods.
+
+# Specify the organization administrator user.
+# Either specify an existing user, or specify the information
+# necessary to create a new user.
+# Do not use the sys admin as the organization administrator.
+#
+# Create a new user for the organization administrator.
+NEW_USER="y"
+# New user information if NEW_USER="y".
+USER_NAME=new@user.com
+FIRST_NAME=new
+LAST_NAME=user
+# Org admin password must be at least 8 characters long and contain one uppercase
+# letter, one lowercase letter, and one digit or special character
+USER_PWD="newUserPword"
+ORG_ADMIN=new@user.com
+#
+# Or, specify an existing user as the organization admin,
+# omit USER_NAME, FIRST_NAME, LAST_NAME, USER_PWD.
+# NEW_USER="n"
+# ORG_ADMIN=existing@user.com
+
+# Specify environment name.
+ENV_NAME=prod  # lowercase only
+
+# Specify virtual host information.
+VHOST_PORT=9001
+VHOST_NAME=default
+
+# If you have a DNS entry for the virtual host.
+VHOST_ALIAS=myorg-test.apigee.net
+
+# If you do not have a DNS entry for the virtual host,
+# specify the IP and port of each router as a space-separated list:
+# VHOST_ALIAS="firstRouterIP:9001 secondRouterIP:9001"
+
+# Optionally configure TLS/SSL for virtual host.
+# VHOST_SSL=y     # Set to "y" to enable TLS/SSL on the virtual host.
+# KEYSTORE_JAR=   # JAR file containing the cert and private key.
+# KEYSTORE_NAME=  # Name of the keystore.
+# KEYSTORE_ALIAS= # The key alias.
+# KEY_PASSWORD=   # The key password, if it has one.
+
+# Specify the analytics group.
+# AXGROUP=axgroup-001 # Default name is axgroup-001.
+
+
+
