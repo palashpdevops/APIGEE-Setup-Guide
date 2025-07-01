@@ -1,0 +1,22 @@
+	9-node clustered installation
+See Installation topologies for the list of Edge topologies and node numbers.
+
+Install Datastore Cluster Node on node 1, 2 and 3:
+
+/opt/apigee/apigee-setup/bin/setup.sh -p ds -f configFile
+Install Apigee Management Server on node 1:
+
+/opt/apigee/apigee-setup/bin/setup.sh -p ms -f configFile
+Install Router and Message Processor on nodes 4 and 5:
+
+/opt/apigee/apigee-setup/bin/setup.sh -p rmp -f configFile
+Install Apigee Analytics Qpid Server on node 6 and 7:
+
+/opt/apigee/apigee-setup/bin/setup.sh -p qs -f configFile
+Install Apigee Analytics Postgres Server on node 8 and 9:
+
+/opt/apigee/apigee-setup/bin/setup.sh -p ps -f configFile
+Restart the Classic UI component on node 1:
+
+/opt/apigee/apigee-service/bin/apigee-service edge-ui restart
+This applies to the Classic UI, not the new Edge UI, whose component name is edge-management-ui.
