@@ -1,7 +1,59 @@
-	9-node clustered installation
+2. Under apigee-5-node update apigee.config file with appropriate details of the region
+
+apigee.config
+# With SMTP
+IP1=10.43.33.112
+IP2=10.43.33.202
+IP3=10.43.33.155
+IP4=10.43.33.55
+IP5=10.43.33.103
+IP6=10.43.33.202
+IP7=10.43.33.155
+IP8=10.43.33.55
+IP9=10.43.33.103
+HOSTIP=$(hostname -i)
+ENABLE_SYSTEM_CHECK=y
+ADMIN_EMAIL=Saibalkumar.Ghosh@lycatech.com
+APIGEE_ADMINPW=Admin@Apigee@001
+LICENSE_FILE=/tmp/license.txt
+MSIP=$IP1
+USE_LDAP_REMOTE_HOST=n
+LDAP_TYPE=1
+APIGEE_LDAPPW=Admin@Ldap@002
+MP_POD=gateway
+REGION=dc-au-np-1
+ZK_HOSTS="$IP1 $IP2 $IP3"
+ZK_CLIENT_HOSTS="$IP1 $IP2 $IP3"
+# Must use IP addresses for CASS_HOSTS, not DNS names.
+CASS_HOSTS="$IP1 $IP2 $IP3"
+# Default is postgres
+PG_PWD=postgres
+PG_MASTER=$IP8
+PG_STANDBY=$IP9
+SKIP_SMTP=n
+SMTPHOST="XXXXX"
+SMTPUSER="XXXX"
+# omit for no username
+SMTPPASSWORD="xxxxxx"
+# omit for no password
+SMTPSSL=y
+SMTPPORT=587
+SMTPMAILFROM="notification@apigoo-syd.lycamobile.au"
+# Set up username and password to access Qpid broker's management console
+QPID_MGMT_USERNAME=qpid
+QPID_MGMT_PASSWORD=Admin@Qpid@003
+
+
+Follow the step as per given link:
+https://docs.apigee.com/private-cloud/v4.53.00/install-edge-components-node
+============================================================================
+
+9-node clustered installation (Real Install)
 See Installation topologies for the list of Edge topologies and node numbers.
 
 Install Datastore Cluster Node on node 1, 2 and 3:
+use the "-t" flag to make that check without having to do an install
+/opt/apigee/apigee-setup/bin/setup.sh -p ds -f /tmp/apigee.config -t
 
 /opt/apigee/apigee-setup/bin/setup.sh -p ds -f configFile
 Install Apigee Management Server on node 1:
