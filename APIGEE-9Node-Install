@@ -1,0 +1,411 @@
+Install Ansible on Jump Box:
+yum install python
+python --version
+yum install ansible-core
+git clone -b EU-PROD https://github.com/saibalghosh1980/APIGEE-5-NODE-TOPOLOGY
+
+Update the inventory with appropriate servers and node-group
+grep -ir nodes-non-prod-eu 
+Then commit the change push the branch to github.
+
+  git config --global user.email "palash47@gmail.com"
+  git config --global user.name "Palash Paul"
+
+git commit -am " Message about changes made"
+git push -u origin EU-PROD
+
+2. Under apigee-9-node update apigee.config file with appropriate details of the region
+
+apigee.config
+# With SMTP
+IP1=10.43.33.112
+IP2=10.43.33.202
+IP3=10.43.33.155
+IP4=10.43.33.55
+IP5=10.43.33.103
+IP6=10.43.33.202
+IP7=10.43.33.155
+IP8=10.43.33.55
+IP9=10.43.33.103
+HOSTIP=$(hostname -i)
+ENABLE_SYSTEM_CHECK=y
+ADMIN_EMAIL=Saibalkumar.Ghosh@lycatech.com
+APIGEE_ADMINPW=Admin@Apigee@001
+LICENSE_FILE=/tmp/license.txt
+MSIP=$IP1
+USE_LDAP_REMOTE_HOST=n
+LDAP_TYPE=1
+APIGEE_LDAPPW=Admin@Ldap@002
+MP_POD=gateway
+REGION=dc-au-np-1
+ZK_HOSTS="$IP1 $IP2 $IP3"
+ZK_CLIENT_HOSTS="$IP1 $IP2 $IP3"
+# Must use IP addresses for CASS_HOSTS, not DNS names.
+CASS_HOSTS="$IP1 $IP2 $IP3"
+# Default is postgres
+PG_PWD=postgres
+PG_MASTER=$IP8
+PG_STANDBY=$IP9
+SKIP_SMTP=n
+SMTPHOST="XXXXX"
+SMTPUSER="XXXX"
+# omit for no username
+SMTPPASSWORD="xxxxxx"
+# omit for no password
+SMTPSSL=y
+SMTPPORT=465
+SMTPMAILFROM="notification@apigoo-syd.lycamobile.au"
+# Set up username and password to access Qpid broker's management console
+QPID_MGMT_USERNAME=qpid
+QPID_MGMT_PASSWORD=Admin@Qpid@003
+
+
+Follow the step as per given link:
+https://docs.apigee.com/private-cloud/v4.53.00/install-edge-components-node
+============================================================================
+
+Follow 9-Nodes Installation instructions (Real Install):
+
+use the "-t" flag to make that check without having to do an install
+/opt/apigee/apigee-setup/bin/setup.sh -p ds -f /tmp/apigee.config -t
+Install Datastore cluster on nodes 1, 2 and 3:
+/opt/apigee/apigee-setup/bin/setup.sh -p ds -f /tmp/apigee.config
+/opt/apigee/apigee-cassandra/bin/nodetool info
+/opt/apigee/apigee-cassandra/bin/nodetool status
+
+Install Management Server on Node1:
+/opt/apigee/apigee-setup/bin/setup.sh -p ms -f /tmp/apigee.config
+
+Install Router and Message Processor on nodes 4 and 5:
+/opt/apigee/apigee-setup/bin/setup.sh -p rmp -f /tmp/apigee.config
+
+Install Qpid on node 6 and 7:
+/opt/apigee/apigee-setup/bin/setup.sh -p qs -f /tmp/apigee.config
+
+Install Postgres on node 8 and 9:
+/opt/apigee/apigee-setup/bin/setup.sh -p ps -f /tmp/apigee.config
+
+Restart the Classic UI component on node 1:
+/opt/apigee/apigee-service/bin/apigee-service edge-ui restart
+
+This applies to the Classic UI, not the new Edge UI whose component name is edge-management-ui.
+
+
+Validation:
+===============================================================================
+Log file path for analysis
+/opt/apigee/var/log/apigee-setup/setup.log
+
+Run the validation tests
+Each step of the validation testing process returns an HTTP 20X response code for a successful test.
+
+To run the test scripts:
+Install apigee-validate on a Management Server (Node1):
+1. /opt/apigee/apigee-service/bin/apigee-service apigee-validate install
+
+Run the setup command on a Management Server node to invoke the test scripts:
+2. /opt/apigee/apigee-service/bin/apigee-service apigee-validate setup -f /tmp/apigee.config
+
+The configFile file must contain the following property:
+APIGEE_ADMINPW=SYS_ADMIN_PASSWORD
+VHOST_PORT=9000
+
+To remove the organization, environment and other artifacts created by the test scripts:
+3. /opt/apigee/apigee-service/bin/apigee-service apigee-validate clean -f /tmp/apigee.config
+
+
+Verify POD installation status in management server:
+====================================================
+curl -u user:password http://localhost:8080/v1/servers?pod=central
+curl -u user:password http://localhost:8080/v1/servers?pod=gateway
+curl -u user:password http://localhost:8080/v1/servers?pod=analytics
+curl -u admin.apigee@lycatech.com:password http://localhost:8080/v1/servers?pod=central
+
+
+Licensing
+Each installation of Edge requires a unique license file that you obtain from Apigee. You will need to provide the path to the license file when installing the management server, for example /tmp/license.txt.
+The installer copies the license file to /opt/apigee/customer/conf/license.txt
+
+===========================================================================
+# Starting, stopping, restarting, and checking the status of Apigee Edge  #
+===========================================================================
+
+Stop order:
+===========
+If you install Edge on multiple nodes, then you should stop Edge components on those nodes in the following stop order:
+
+Management Server (edge-management-server)
+Message Processor (edge-message-processor)
+Postgres Server (edge-postgres-server)
+Qpid Server (edge-qpid-server)
+Router (edge-router)
+Edge UI: edge-ui (classic) or edge-management-ui(new)
+Cassandra (apigee-cassandra)
+OpenLDAP (apigee-openldap)
+PostgreSQL database (apigee-postgresql)
+Qpidd (apigee-qpidd)
+ZooKeeper (apigee-zookeeper)
+Apigee SSO (apigee-sso)
+
+Start order:
+############
+
+If you install Edge on multiple nodes, then you should start Edge components on those nodes in the following start order:
+
+Cassandra (apigee-cassandra)
+OpenLDAP (apigee-openldap)
+PostgreSQL database (apigee-postgresql)
+Qpidd (apigee-qpidd)
+ZooKeeper (apigee-zookeeper)
+Management Server (edge-management-server)
+Message Processor (edge-message-processor)
+Postgres Server (edge-postgres-server)
+Qpid Server (edge-qpid-server)
+Router (edge-router)
+Edge UI: edge-ui (classic) or edge-management-ui(new)
+Edge SSO (apigee-sso)
+Start/stop/check all components
+The following scripts detect the Apigee components configured to run on the system on which the script is executed, and will start or stop only those components in the correct order for that node.
+
+To stop all Apigee components:
+
+/opt/apigee/apigee-service/bin/apigee-all stop
+To start all Apigee components:
+
+/opt/apigee/apigee-service/bin/apigee-all start
+To restart all Apigee components:
+
+/opt/apigee/apigee-service/bin/apigee-all restart
+To check which components are running:
+
+/opt/apigee/apigee-service/bin/apigee-all status
+Start/stop/restart individual components
+You can use the apigee-service tool to start/stop/restart or check the status of an individual Apigee component on any specific server.
+
+
+/opt/apigee/apigee-service/bin/apigee-service component_name [start|stop|restart|status]
+
+Where component_name identifies the component. Possible values of component_name include (in alphabetical order):
+
+apigee-cassandra (Cassandra)
+apigee-openldap (OpenLDAP)
+apigee-postgresql (PostgreSQL database)
+apigee-qpidd (Qpidd)
+apigee-sso (Edge SSO)
+apigee-zookeeper (ZooKeeper)
+edge-management-server (Management Server)
+edge-management-ui (new Edge UI)
+edge-message-processor (Message Processor) [Log Location: /opt/apigee/var/log/edge-message-processor]
+edge-postgres-server (Postgres Server)
+edge-qpid-server (Qpid Server)
+edge-router (Edge Router)
+edge-ui (Classic UI)
+
+For example, to start, stop, or restart the Management Server, run the following commands:
+/opt/apigee/apigee-service/bin/apigee-service edge-management-server start
+/opt/apigee/apigee-service/bin/apigee-service edge-management-server stop
+/opt/apigee/apigee-service/bin/apigee-service edge-management-server restart
+
+You can also check the status of an individual Apigee component by using the following command:
+/opt/apigee/apigee-service/bin/apigee-service component_name status
+
+For example:
+/opt/apigee/apigee-service/bin/apigee-service edge-management-server status
+
+
+===============================================================================
+Integrate Automatic Restart:
+===============================================================================
+An on-premises installation of Edge Private Cloud does not restart automatically during a reboot. You can use the following commands to enable/disable autostart on any node.
+To enable all components on the node:
+
+/opt/apigee/apigee-service/bin/apigee-all enable_autostart
+
+In later stage if required to disable the auto restart then use below command. 
+To disable all components on the node:
+/opt/apigee/apigee-service/bin/apigee-all disable_autostart
+
+To enable or disable autostart for a specific component on the node:
+/opt/apigee/apigee-service/bin/apigee-service component_name enable_autostart
+/opt/apigee/apigee-service/bin/apigee-service component_name disable_autostart
+
+Where component_name identifies the component. Possible values include:
+
+apigee-cassandra (Cassandra)
+apigee-openldap (OpenLDAP)
+apigee-postgresql (PostgreSQL database)
+apigee-qpidd (Qpidd)
+apigee-sso (Edge SSO)
+apigee-zookeeper (ZooKeeper)
+edge-management-server (Management Server)
+edge-management-ui (new Edge UI)
+edge-message-processor (Message Processor)
+edge-postgres-server (Postgres Server)
+edge-qpid-server (Qpid Server)
+edge-router (Edge Router)
+edge-ui (Classic UI)
+The script only affects the node on which you run it. If you want to configure all nodes for autostart, run the script on all nodes.
+
+Note: If you run into issues where the OpenLDAP server does not start automatically on reboot, try disabling SELinux or setting it to permissive mode.
+Note that the order of starting the components is very important:
+
+First start ZooKeeper, Cassandra, LDAP (OpenLDAP)
+If ZooKeeper and Cassandra are installed as cluster, the complete cluster must be up and running before starting any other Apigee component.
+
+Then, any Apigee component (Management Server, Router, UI, etc.). For Postgres Server first start postgresql and for Qpid Server first start qpidd.
+Implications:
+
+For a complete restart of an Apigee Edge environment, the nodes with ZooKeeper and Cassandra need to be booted completely prior to any other node.
+If any other Apigee component is running on one or more ZooKeeper and Cassandra nodes, it is not recommended to use autostart. Instead, start the components in the order described in Starting, stopping, restarting, and checking the status of Apigee Edge.
+Troubleshooting autostart
+If you configure autostart, and Edge encounters issues with starting the OpenLDAP server, you can try disabling SELinux or setting it to permissive mode on all nodes. To configure SELinux:
+
+Edit the /etc/sysconfig/selinux file:
+
+sudo vi /etc/sysconfig/selinux
+Set SELINUX=disabled or SELINUX=permissive.
+Save your edits.
+
+Restart the machine and then restart Edge:
+/opt/apigee/apigee-service/bin/apigee-all restart
+
+=================================
+Self healing with apigee-monit
+=================================
+Apigee Edge for Private Cloud includes apigee-monit, a tool based on the open source monit utility. apigee-monit periodically polls Edge services; if a service is unavailable, then apigee-monit attempts to restart it.
+
+Quick start
+This section shows you how to quickly get up and running with apigee-monit.
+If you are using Amazon Linux or Oracle-Linux-7.X, first install monit via Fedora. Otherwise, skip this step.
+
+
+sudo yum install -y https://kojipkgs.fedoraproject.org/packages/monit/5.25.1/1.el6/x86_64/monit-5.25.1-1.el6.x86_64.rpm
+To install apigee-monit, do the following steps:
+
+ 	Install apigee-monit
+
+/opt/apigee/apigee-service/bin/apigee-service apigee-monit install
+/opt/apigee/apigee-service/bin/apigee-service apigee-monit configure
+/opt/apigee/apigee-service/bin/apigee-service apigee-monit start
+This installs apigee-monit and starts monitoring all components on the node by default.
+
+restarts apigee-monit:
+/opt/apigee/apigee-service/bin/apigee-service apigee-monit restart
+
+
+ 	Stop monitoring components
+
+/opt/apigee/apigee-service/bin/apigee-service apigee-monit unmonitor -c component_name
+/opt/apigee/apigee-service/bin/apigee-service apigee-monit unmonitor -c all
+
+ 	Start monitoring components
+
+/opt/apigee/apigee-service/bin/apigee-service apigee-monit monitor -c component_name
+/opt/apigee/apigee-service/bin/apigee-service apigee-monit monitor -c all
+
+ 	Get summary status information
+/opt/apigee/apigee-service/bin/apigee-service apigee-monit report
+/opt/apigee/apigee-service/bin/apigee-service apigee-monit summary
+
+ 	Look at the apigee-monit log files
+cat /opt/apigee/var/log/apigee-monit/apigee-monit.log
+
+######################################################
+To customize the default apigee-monit control settings:
+######################################################
+Edit the following file:
+
+/opt/apigee/customer/application/monit.properties
+If the file does not exist, create it and set the owner to the "apigee" user:
+
+
+chown apigee:apigee /opt/apigee/customer/application/monit.properties
+Note that if the file already exists, there may be additional configuration properties defined in it beyond what is listed in the table above. You should not modify properties other than those listed above.
+
+Set or replace property values with your new values.
+
+For example, to change the location of the log file to /tmp, add or edit the following property:
+
+
+conf_monit_monit_logdir=/tmp/apigee-monit.log
+Save your changes to the monit.properties file.
+Re-configure apigee-monit with the following command:
+
+/opt/apigee/apigee-service/bin/apigee-service apigee-monit configure
+Reload apigee-monit with the following command:
+
+/opt/apigee/apigee-service/bin/apigee-service apigee-monit reload
+If you cannot restart apigee-monit, check the log file for errors as described in Access apigee-monit log files.
+
+Repeat this procedure for each node in your cluster.
+
+
+#######################################################################################
+After MONIT setup is completed start organization onboard (on Node1 Management server).
+#######################################################################################
+
+Create an onboarding configuration file org.config:
+=====================================================================================================
+This section includes a sample configuration file for onboarding an organization with setup-org. Copy the file to Management server at /tmp/org.config
+
+Copy the following example and edit as necessary for your organization:
+
+
+IP1=192.168.1.1
+
+# Specify the IP or DNS name of the Management Server.
+MSIP="$IP1"
+
+# Specify the Edge sys admin credentials.
+ADMIN_EMAIL="admin@email.com"
+APIGEE_ADMINPW=admin_password  # If omitted, you are prompted for it.
+
+# Specify organization name.
+ORG_NAME=myorg  # lowercase only, no spaces, underscores, or periods.
+
+# Specify the organization administrator user.
+# Either specify an existing user, or specify the information
+# necessary to create a new user.
+# Do not use the sys admin as the organization administrator.
+#
+# Create a new user for the organization administrator.
+NEW_USER="y"
+# New user information if NEW_USER="y".
+USER_NAME=new@user.com
+FIRST_NAME=new
+LAST_NAME=user
+# Org admin password must be at least 8 characters long and contain one uppercase
+# letter, one lowercase letter, and one digit or special character
+USER_PWD="newUserPword"
+ORG_ADMIN=new@user.com
+#
+# Or, specify an existing user as the organization admin,
+# omit USER_NAME, FIRST_NAME, LAST_NAME, USER_PWD.
+# NEW_USER="n"
+# ORG_ADMIN=existing@user.com
+
+# Specify environment name.
+ENV_NAME=prod  # lowercase only
+
+# Specify virtual host information.
+VHOST_PORT=9001
+VHOST_NAME=default
+
+# If you have a DNS entry for the virtual host.
+VHOST_ALIAS=myorg-test.apigee.net
+
+# If you do not have a DNS entry for the virtual host,
+# specify the IP and port of each router as a space-separated list:
+# VHOST_ALIAS="firstRouterIP:9001 secondRouterIP:9001"
+
+# Optionally configure TLS/SSL for virtual host.
+# VHOST_SSL=y     # Set to "y" to enable TLS/SSL on the virtual host.
+# KEYSTORE_JAR=   # JAR file containing the cert and private key.
+# KEYSTORE_NAME=  # Name of the keystore.
+# KEYSTORE_ALIAS= # The key alias.
+# KEY_PASSWORD=   # The key password, if it has one.
+
+# Specify the analytics group.
+# AXGROUP=axgroup-001 # Default name is axgroup-001.
+
+
