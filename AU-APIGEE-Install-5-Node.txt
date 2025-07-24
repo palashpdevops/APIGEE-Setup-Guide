@@ -10,48 +10,25 @@ grep -ir nodes-non-prod-eu
 
 Then commit the change push the branch to github
 
-Australia Sydney Region:
-
-Username:
-ocid1.user.oc1..aaaaaaaaawwn4jifiejeeqjvgtz63va3tqkubf2ada2okhnbojdmig4rzdga@ocid1.tenancy.oc1..aaaaaaaansmpcdmysic6h5l3zencs5kyirgy47lpmh2jz5rtggd3euy2kbza.9d.com
-Password:
->v-B($4&ojCvJM7r0&KY
-
-
-1) vmlgapi01nodetest.app01.augapi01sydtest.oraclevcn.com
-ssh gglapi@10.43.33.112
-
-2) vmlgapi02nodetest.app01.augapi01sydtest.oraclevcn.com
-ssh gglapi@10.43.33.202
-
-3) vmlgapi03nodetest.app01.augapi01sydtest.oraclevcn.com
-ssh gglapi@10.43.33.155
-
-4) vmlgapi04nodetest.app01.augapi01sydtest.oraclevcn.com
-ssh gglapi@10.43.33.55
-
-5) vmlgapi05nodetest.app01.augapi01sydtest.oraclevcn.com
-ssh gglapi@10.43.33.103
-
 
 2. Under apigee-5-node update apigee.config file with appropriate details of the region
 
 apigee.config
 # With SMTP
-IP1=10.43.33.112
-IP2=10.43.33.202
-IP3=10.43.33.155
-IP4=10.43.33.55
-IP5=10.43.33.103
+IP1=10.43.xx.xx
+IP2=10.43.xx.xx
+IP3=10.43.xx.xx
+IP4=10.43.xx.xx
+IP5=10.43.xx.xx
 HOSTIP=$(hostname -i)
 ENABLE_SYSTEM_CHECK=y
-ADMIN_EMAIL=Saibalkumar.Ghosh@lycatech.com
-APIGEE_ADMINPW=Admin@Apigee@001
+ADMIN_EMAIL=APIGEE
+APIGEE_ADMINPW=Axxxx
 LICENSE_FILE=/tmp/license.txt
 MSIP=$IP1
 USE_LDAP_REMOTE_HOST=n
 LDAP_TYPE=1
-APIGEE_LDAPPW=Admin@Ldap@002
+APIGEE_LDAPPW=XXXX
 MP_POD=gateway
 REGION=dc-au-np-1
 ZK_HOSTS="$IP1 $IP2 $IP3"
@@ -70,10 +47,10 @@ SMTPPASSWORD="xxxxxx"
 # omit for no password
 SMTPSSL=y
 SMTPPORT=587
-SMTPMAILFROM="notification@apigoo-syd.lycamobile.au"
+SMTPMAILFROM="notification@apigoo.au"
 # Set up username and password to access Qpid broker's management console
 QPID_MGMT_USERNAME=qpid
-QPID_MGMT_PASSWORD=Admin@Qpid@003
+QPID_MGMT_PASSWORD=xxxx
 
 
 Follow the step as per given link:
