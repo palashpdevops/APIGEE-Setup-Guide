@@ -13,7 +13,7 @@ IP8=10
 IP9=10.
 HOSTIP=$(hostname -i)
 ENABLE_SYSTEM_CHECK=y
-ADMIN_EMAIL=admin
+ADMIN_EMAIL=admin@example.com
 APIGEE_ADMINPW=Admin
 LICENSE_FILE=/tmp/license.txt
 MSIP=$IP1
@@ -38,7 +38,7 @@ SMTPPASSWORD='xxxxxx'
 # omit for no password
 SMTPSSL=y
 SMTPPORT=465
-SMTPMAILFROM='notification@apigoo-syd.lycamobile.au'
+SMTPMAILFROM='notification@example.com'
 # Set up username and password to access Qpid broker's management console
 QPID_MGMT_USERNAME=qpid
 QPID_MGMT_PASSWORD=Admin@Qpid
@@ -102,7 +102,7 @@ Verify POD installation status in management server:
 curl -u user:password http://localhost:8080/v1/servers?pod=central
 curl -u user:password http://localhost:8080/v1/servers?pod=gateway
 curl -u user:password http://localhost:8080/v1/servers?pod=analytics
-curl -u admin.apigee@lycatech.com:password http://localhost:8080/v1/servers?pod=central
+curl -u admin.apigee@example.com:password http://localhost:8080/v1/servers?pod=central
 
 
 
